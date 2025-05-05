@@ -1,3 +1,5 @@
+import * as Commands from './commands/index.js';
+
 function extractPath(inputPath) {
   const space = ' ';
   const doubleQuoted = inputPath.match(/^"([^"]*)"/);
@@ -36,8 +38,18 @@ export async function handleUserInput(userInput, readlineInterface) {
   const [commandName, argumentsString] = extractCommand(userInput);
   let parsedArguments;
 
+  const executeCommand = async (action, ...params) => {
+    try {
+      await action(...params);
+    } catch (error) {
+      console.error('[Execution Error]', error.message);
+    }
+  };
+
   switch (commandName) {
     case 'os':
+      parsedArguments = processArguments(argumentsString, 1, parseOptions);
+      await executeCommand(Commands.sysInfo, ...parsedArguments);
       break;
     case '.exit':
       readlineInterface.close();
@@ -51,4 +63,31 @@ export async function handleUserInput(userInput, readlineInterface) {
   }
 
   return [commandName, parsedArguments];
+}
+
+function processArguments(argString, ...argProcessors) {
+  const processedArgs = [];
+  let remainingString = argString;
+
+  for (let i = 0; i < argProcessors.length; i += 2) {
+    const argCount = argProcessors[i];
+    const processorFunc = argProcessors[i + 1];
+
+    for (let j = 0; j < argCount; j++) {
+      const [processedArg, restOfString] = processorFunc(remainingString);
+      if (processedArg && (typeof processedArg === 'object' || processedArg.length)) {
+        processedArgs.push(processedArg);
+      }
+      remainingString = restOfString.trim();
+    }
+  }
+
+  const additionalArgs = [];
+  while (remainingString) {
+    const [processedArg, rest] = parseOptions(remainingString);
+    additionalArgs.push(processedArg);
+    remainingString = rest.trim();
+  }
+
+  return [...processedArgs, ...additionalArgs];
 }
