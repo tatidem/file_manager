@@ -155,7 +155,7 @@ export async function handleUserInput(userInput, readlineInterface) {
       break;
 
     default:
-      console.error('Invalid Command:', commandName, '\n');
+      console.error('Invalid input:', commandName, '\n');
   }
 
   return [commandName, parsedArguments];

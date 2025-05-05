@@ -33,7 +33,7 @@ class FileManager {
   }
 
   showPrompt() {
-    this.interface.output.write(`Current directory: ${process.cwd()}${this.lineSeparator}`);
+    this.interface.output.write(`You are currently in: ${process.cwd()}${this.lineSeparator}`);
     this.interface.prompt();
   }
 
