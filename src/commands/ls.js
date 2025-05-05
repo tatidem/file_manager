@@ -1,5 +1,4 @@
 import { readdir, stat } from 'fs/promises';
-import { join } from 'path';
 
 export async function ls(directory = '.') {
   try {
@@ -21,7 +20,7 @@ export async function ls(directory = '.') {
       return a.Type === 'Directory' ? -1 : 1;
     });
 
-    const indexedContents = contents.map((item, index) => ({
+    const indexedContents = contents.map((item, _index) => ({
       ...item
     }));
 

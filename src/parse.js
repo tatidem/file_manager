@@ -80,6 +80,11 @@ export async function handleUserInput(userInput, readlineInterface) {
       }
       await executeCommand(Commands.ls, targetDirectory, ...parsedArguments);
       break;
+    
+    case 'cat':
+      parsedArguments = processArguments(argumentsString, 1, extractPath);
+      await executeCommand(Commands.cat, parsedArguments[0], readlineInterface);
+      break;
 
     case '.exit':
       readlineInterface.close();
