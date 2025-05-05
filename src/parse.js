@@ -32,9 +32,19 @@ export function parseOptions(optionString, shouldParseSub = true) {
 
 export async function handleUserInput(userInput, readlineInterface) {
   const extractCommand = (inputString) => {
-    const [commandName, ...argsArray] = inputString.trim().split(' ');
-    return [commandName, argsArray.join(' ')];
-  }
+    const trimmed = inputString.trim();
+    const commandStart = trimmed.search(/\S/);
+    const commandEnd = trimmed.indexOf(' ', commandStart);
+    
+    if (commandEnd === -1) {
+      return [trimmed.slice(commandStart), ''];
+    }
+    
+    const commandName = trimmed.slice(commandStart, commandEnd);
+    const argumentsString = trimmed.slice(commandEnd).trimStart();
+    
+    return [commandName, argumentsString];
+  };
 
   const [commandName, argumentsString] = extractCommand(userInput);
   let parsedArguments;
@@ -43,7 +53,7 @@ export async function handleUserInput(userInput, readlineInterface) {
     try {
       await action(...params);
     } catch (error) {
-      console.error('[Execution Error]', error.message);
+      console.error('Execution Error', error.message);
     }
   };
 
@@ -59,7 +69,6 @@ export async function handleUserInput(userInput, readlineInterface) {
   
     case 'cd':
       parsedArguments = processArguments(argumentsString, 1, extractPath);
-      console.log(parsedArguments);
       let directory = parsedArguments[0];
       if (directory === '~' || !directory) directory = homedir();
       Commands.cd(directory);
@@ -82,8 +91,10 @@ export async function handleUserInput(userInput, readlineInterface) {
       break;
     
     case 'cat':
+    case 'add':
+    case 'mkdir':
       parsedArguments = processArguments(argumentsString, 1, extractPath);
-      await executeCommand(Commands.cat, parsedArguments[0], readlineInterface);
+      await executeCommand(Commands[commandName], parsedArguments[0], readlineInterface);
       break;
 
     case '.exit':
