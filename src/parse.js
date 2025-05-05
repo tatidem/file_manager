@@ -1,3 +1,4 @@
+import { resolve  } from 'path';
 import * as Commands from './commands/index.js';
 
 function extractPath(inputPath) {
@@ -5,7 +6,7 @@ function extractPath(inputPath) {
   const doubleQuoted = inputPath.match(/^"([^"]*)"/);
   if (doubleQuoted) return [doubleQuoted[1], inputPath.slice(doubleQuoted[0].length)];
 
-  const singleQuoted = inputPath.match(/^\s'([^']*)'\s/);
+  const singleQuoted = inputPath.match(/^\s*'([^']*)'(?:\s|$)/);
   if (singleQuoted) return [singleQuoted[1], inputPath.slice(singleQuoted[0].length)];
 
   const [pathPart, ...remainingParts] = inputPath.split(space);
@@ -51,6 +52,35 @@ export async function handleUserInput(userInput, readlineInterface) {
       parsedArguments = processArguments(argumentsString, 1, parseOptions);
       await executeCommand(Commands.sysInfo, ...parsedArguments);
       break;
+
+    case 'up':
+      Commands.cd('..');
+      break;
+  
+    case 'cd':
+      parsedArguments = processArguments(argumentsString, 1, extractPath);
+      console.log(parsedArguments);
+      let directory = parsedArguments[0];
+      if (directory === '~' || !directory) directory = homedir();
+      Commands.cd(directory);
+      break;
+      
+    case 'ls':
+      parsedArguments = processArguments(argumentsString, 1, extractPath);
+      let targetDirectory;
+      if (typeof parsedArguments[0] === 'string') {
+        if (parsedArguments[0].startsWith('-')) {
+          parsedArguments[0] = parseOptions(parsedArguments[0])[0];
+        } else {
+          targetDirectory = parsedArguments[0];
+          parsedArguments.shift();
+        }
+      } else {
+        targetDirectory = resolve(process.cwd());
+      }
+      await executeCommand(Commands.ls, targetDirectory, ...parsedArguments);
+      break;
+
     case '.exit':
       readlineInterface.close();
       process.exit(0);
