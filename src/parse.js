@@ -128,6 +128,25 @@ export async function handleUserInput(userInput, readlineInterface) {
       );
       break;
 
+    case 'compress':
+    case 'decompress':
+      parsedArguments = processArguments(argumentsString, 2, extractPath);
+      let compressionType = 'br';
+      if (!parsedArguments[1]) parsedArguments[1] = '';
+      if (parsedArguments[2]) {
+        compressionType = typeof parsedArguments[2] === 'object'
+          ? String(Object.keys(parsedArguments[2])[0])
+          : parsedArguments[2].trim();
+      }
+      await executeCommand(
+        Commands.brotli,
+        parsedArguments[0],
+        parsedArguments[1],
+        compressionType,
+        commandName
+      );
+      break;
+
     case '.exit':
       readlineInterface.close();
       process.exit(0);
