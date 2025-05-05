@@ -93,13 +93,16 @@ export async function handleUserInput(userInput, readlineInterface) {
     case 'cat':
     case 'add':
     case 'mkdir':
+    case 'rm':
       parsedArguments = processArguments(argumentsString, 1, extractPath);
       await executeCommand(Commands[commandName], parsedArguments[0], readlineInterface);
       break;
     
     case 'rn':
+    case 'cp':
+    case 'mv':
       parsedArguments = processArguments(argumentsString, 2, extractPath);
-      await executeCommand(Commands.rn, ...parsedArguments);
+      await executeCommand(Commands[commandName], ...parsedArguments);
       break;
 
     case '.exit':
