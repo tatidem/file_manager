@@ -8,3 +8,4 @@ export { rn } from './rn.js';
 export { rm } from './rm.js';
 export { mv } from './mv.js';
 export { cp } from './cp.js';
+export { hash } from './hash.js';

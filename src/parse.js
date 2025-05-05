@@ -1,5 +1,6 @@
 import { resolve  } from 'path';
 import * as Commands from './commands/index.js';
+import { fileExist } from './utils/fileExist.js';
 
 function extractPath(inputPath) {
   const space = ' ';
@@ -57,6 +58,17 @@ export async function handleUserInput(userInput, readlineInterface) {
     }
   };
 
+  const handlePathArgument = async (pathArg, optionsArg) => {
+    if (pathArg) {
+      const exists = await fileExist(pathArg);
+      if (!exists) {
+        const options = parseOptions(optionsArg || pathArg)[0];
+        if (Object.keys(options).length) return ['', options];
+      }
+    }
+    return [pathArg, optionsArg];
+  };
+
   switch (commandName) {
     case 'os':
       parsedArguments = processArguments(argumentsString, 1, parseOptions);
@@ -103,6 +115,17 @@ export async function handleUserInput(userInput, readlineInterface) {
     case 'mv':
       parsedArguments = processArguments(argumentsString, 2, extractPath);
       await executeCommand(Commands[commandName], ...parsedArguments);
+      break;
+    
+    case 'hash':
+      parsedArguments = processArguments(argumentsString, 1, extractPath);
+      const [hashPath, hashOptions] = await handlePathArgument(...parsedArguments);
+      await executeCommand(
+        Commands.hash,
+        ...[hashPath, hashOptions].map(arg => 
+          typeof arg === 'object' ? Object.keys(arg)[0] : arg
+        )
+      );
       break;
 
     case '.exit':
