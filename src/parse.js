@@ -96,6 +96,11 @@ export async function handleUserInput(userInput, readlineInterface) {
       parsedArguments = processArguments(argumentsString, 1, extractPath);
       await executeCommand(Commands[commandName], parsedArguments[0], readlineInterface);
       break;
+    
+    case 'rn':
+      parsedArguments = processArguments(argumentsString, 2, extractPath);
+      await executeCommand(Commands.rn, ...parsedArguments);
+      break;
 
     case '.exit':
       readlineInterface.close();
